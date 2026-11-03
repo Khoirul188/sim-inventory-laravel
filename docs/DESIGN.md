@@ -167,8 +167,8 @@ Semua angka (stok, jumlah, harga) memakai `tabular-nums` dan format Indonesia: `
 | | Kategori | `rectangle-group` | admin, staff |
 | | Satuan | `scale` | admin, staff |
 | | Supplier | `truck` | admin, staff |
-| TRANSAKSI | Barang Masuk | `arrow-down-tray` | admin, staff |
-| | Barang Keluar | `arrow-up-tray` | admin, staff |
+| TRANSAKSI | Barang Masuk | `arrow-down-tray` | admin, staff (pimpinan: hanya daftar dan detail, tanpa tombol tambah) |
+| | Barang Keluar | `arrow-up-tray` | admin, staff (pimpinan: hanya daftar dan detail, tanpa tombol tambah) |
 | | Kartu Stok | `clipboard-document-list` | semua |
 | LAPORAN | Laporan | `chart-bar-square` | admin, pimpinan |
 | PENGATURAN | Pengguna | `users` | admin |
@@ -269,9 +269,9 @@ Urutan prioritas implementasi mengikuti PRD: **M/S** dulu, panel bertanda *Opsio
 ### 6.1 Grid
 
 ```
-≥ xl (1280 px):  [ kolom utama (1fr) ........................ ][ kolom kanan 320 px ]
-                 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-5
-< xl:            satu kolom, kolom kanan turun di bawah.
+≥ 2xl (1536 px): [ kolom utama (1fr) ........................ ][ kolom kanan 320 px ]
+                 grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_320px] gap-5
+< 2xl:           satu kolom, kolom kanan turun di bawah. (Pada 1280–1535 px, sidebar 240 px + kolom kanan 320 px menyisakan terlalu sedikit lebar untuk 4 kartu KPI, labelnya terpotong jadi 3 baris.)
 ```
 
 **Kolom utama (atas ke bawah):**
@@ -368,8 +368,8 @@ Baris dinamis form transaksi: tombol "+ Tambah Baris" (sekunder), tombol hapus b
 
 | Lebar | Perilaku |
 |---|---|
-| ≥ 1280 px (`xl`) | Sidebar tetap, dashboard dua kolom (utama + kanan 320 px), KPI 4 kolom |
-| 1024–1279 px (`lg`) | Sidebar tetap, kolom kanan turun ke bawah, KPI 4 → 2 kolom jika sempit |
+| ≥ 1536 px (`2xl`) | Sidebar tetap, dashboard dua kolom (utama + kanan 320 px), KPI 4 kolom |
+| 1024–1535 px (`lg` s/d `xl`) | Sidebar tetap, dashboard satu kolom (panel kanan turun ke bawah), KPI 4 kolom mulai `xl` (1280 px), 2 kolom di bawahnya |
 | 640–1023 px | Sidebar drawer, KPI 2 kolom, grafik tersusun satu kolom |
 | < 640 px | KPI 1 kolom, tabel bisa digulir horizontal, form satu kolom, tombol aksi utama `w-full` |
 

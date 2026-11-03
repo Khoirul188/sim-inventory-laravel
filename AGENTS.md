@@ -114,7 +114,7 @@ Kerjakan **berurutan**. Setelah tiap fase: jalankan pemeriksaan, laporkan sesuai
 - Hapus tautan font bunny.net (Figtree) dari layout bawaan Breeze, ganti dengan font Inter dari npm (DESIGN §3.3).
 - Tambahkan `use HasRoles;` pada model `User`; ubah `config/app.php` `timezone` menjadi `Asia/Jakarta`.
 - Konfigurasi `.env` (hanya `APP_NAME`, `APP_URL`, kunci `DB_*`), `config/app.php` (timezone, locale), `tailwind.config.js` (DESIGN §3.2), `bootstrap/app.php` (alias middleware).
-- Semua migration + model + relasi + seeder role/akun/satuan. Matikan registrasi. Middleware `is_active`.
+- Semua migration + model + relasi + seeder role/akun/satuan. Matikan registrasi. Middleware `is_active`. CRUD pengguna (`/users`, FR-03 dan BR-12) dikerjakan di fase ini.
 - Layout `app` + `guest`, sidebar, topbar, komponen dasar DESIGN §11 (card, button, input, badge, table, toast, modal, empty-state, page-header).
 - Halaman login bergaya DESIGN. Dashboard sementara (hanya kerangka).
 - **Selesai jika:** `php artisan migrate:fresh --seed` sukses; tiga akun bisa login; sidebar menampilkan menu sesuai peran; `npm run build` sukses; akses `/users` oleh staff → 403.
@@ -123,12 +123,15 @@ Kerjakan **berurutan**. Setelah tiap fase: jalankan pemeriksaan, laporkan sesuai
 - CRUD kategori, satuan, supplier, barang (pencarian, filter kategori/status, pagination, upload foto ke `storage/app/public/products`, `php artisan storage:link`).
 - Kode barang otomatis `BRG-0001` jika kosong. Pencegahan hapus data yang masih dipakai. Soft delete barang.
 - Halaman detail barang (kartu stok tampil kosong dulu).
+- Seeder: kategori, supplier, dan minimal 30 barang dengan **stok 0** (stok awal selalu 0, BR-13). Riwayat stok dibuat di Fase 3.
+- Sidebar dan route: **pimpinan dapat melihat daftar dan detail** Barang Masuk dan Barang Keluar (hanya baca, PRD §5.2 dan §16). Perbaiki stub route dan menu bila Fase 1 membatasinya hanya admin|staff.
 - **Selesai jika:** semua skenario FR-10 s/d FR-16 lolos; pimpinan hanya bisa melihat barang.
 
 ### Fase 3 — Transaksi dan kartu stok
 - `StockService`, `InsufficientStockException`, penomoran transaksi.
 - Barang masuk dan keluar (daftar, form baris dinamis, detail), kartu stok di detail barang + halaman Kartu Stok.
 - Tes otomatis untuk `StockService` (lihat §8).
+- Seeder riwayat 6–12 bulan **melalui `StockService`** (barang masuk dan keluar), sebagian barang berakhir menipis dan habis, lalu kueri konsistensi PRD §12.6 harus 0 baris.
 - **Selesai jika:** skenario TC-01 s/d TC-13 PRD §18 lolos; stok `products` = hasil penjumlahan `stock_movements` untuk semua barang di data seeder.
 
 ### Fase 4 — Dashboard

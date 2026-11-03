@@ -1,47 +1,80 @@
 <x-guest-layout>
-    <!-- Session Status -->
+    <div class="mb-6">
+        <h1 class="text-xl font-semibold text-ink">Masuk ke Akun Anda</h1>
+        <p class="text-sm text-subtle mt-1">Masukkan email dan kata sandi untuk melanjutkan.</p>
+    </div>
+
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('login') }}">
+    <form
+        method="POST"
+        action="{{ route('login') }}"
+        x-data="{ submitting: false, showPassword: false }"
+        @submit="submitting = true"
+        class="space-y-4"
+    >
         @csrf
 
-        <!-- Email Address -->
+        <!-- Email -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-label for="email" value="Email" :required="true" />
+            <x-input
+                id="email"
+                type="email"
+                name="email"
+                :value="old('email')"
+                placeholder="nama@inventory.test"
+                required
+                autofocus
+                autocomplete="username"
+            />
+            <x-input-error :messages="$errors->get('email')" />
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <!-- Kata Sandi dengan Ikon Mata -->
+        <div>
+            <x-label for="password" value="Kata Sandi" :required="true" />
+            <div class="relative">
+                <input
+                    id="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    name="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="••••••••"
+                    class="h-10 w-full rounded-lg border {{ $errors->has('password') ? 'border-danger focus:border-danger focus:ring-danger/20' : 'border-line focus:border-primary-600 focus:ring-primary-600/20' }} bg-white pl-3 pr-10 text-sm text-ink placeholder:text-subtle focus:ring-2 transition-colors duration-150"
+                />
+                <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    :aria-label="showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2 text-subtle hover:text-ink p-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/40"
+                >
+                    <x-icon x-show="!showPassword" name="eye" class="w-4 h-4" />
+                    <x-icon x-show="showPassword" style="display: none;" name="eye-slash" class="w-4 h-4" />
+                </button>
+            </div>
+            <x-input-error :messages="$errors->get('password')" />
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+        <!-- Ingat Saya -->
+        <div class="flex items-center justify-between pt-1">
+            <label for="remember_me" class="inline-flex items-center cursor-pointer">
+                <input
+                    id="remember_me"
+                    type="checkbox"
+                    name="remember"
+                    class="rounded border-line text-primary-600 focus:ring-primary-600/40"
+                />
+                <span class="ms-2 text-sm text-muted">Ingat saya</span>
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
+        <!-- Tombol Masuk -->
+        <div class="pt-2">
+            <x-button type="submit" variant="primary" class="w-full" ::disabled="submitting">
+                <span x-text="submitting ? 'Memproses…' : 'Masuk'">Masuk</span>
+            </x-button>
         </div>
     </form>
 </x-guest-layout>

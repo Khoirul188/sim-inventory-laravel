@@ -5,32 +5,35 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $title ? $title . ' — ' : '' }}{{ config('app.name', 'SIM Inventory') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+    <body class="font-sans antialiased bg-canvas text-ink">
+        <div x-data="{ sidebarOpen: false }" class="min-h-screen flex flex-col">
+            <!-- Overlay Mobile Sidebar -->
+            <div
+                x-show="sidebarOpen"
+                x-transition.opacity.duration.200ms
+                @click="sidebarOpen = false"
+                style="display: none;"
+                class="fixed inset-0 z-30 bg-ink/50 lg:hidden"
+            ></div>
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            <!-- Sidebar -->
+            <x-sidebar :low-stock-count="$lowStockCount ?? 0" />
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+            <!-- Konten Utama -->
+            <div class="lg:pl-60 flex-1 flex flex-col min-w-0">
+                <x-topbar :title="$title ?? 'Dashboard'" :low-stock-count="$lowStockCount ?? 0" />
+
+                <main class="flex-1 px-4 md:px-6 lg:px-8 py-6 w-full max-w-[1600px] mx-auto">
+                    {{ $slot }}
+                </main>
+            </div>
+
+            <!-- Toast Notifikasi Global -->
+            <x-toast />
         </div>
     </body>
 </html>
