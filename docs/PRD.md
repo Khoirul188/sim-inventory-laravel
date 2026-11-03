@@ -1747,7 +1747,16 @@ Impor font dan grafik dikerjakan agen di `resources\js\app.js` pada Fase 1 dan 4
        ├── PRD.md
        └── DESIGN.md
    ```
-4. (Disarankan) Buat titik pemulihan sebelum agen bekerja:
+4. **Sesuaikan `phpunit.xml`** (wajib, lihat penjelasan di bawah). Pada bagian `<php>`, hapus tanda komentar pada dua baris DB dan tambahkan `APP_URL`:
+   ```xml
+   <env name="APP_URL" value="http://localhost"/>
+   <env name="DB_CONNECTION" value="sqlite"/>
+   <env name="DB_DATABASE" value=":memory:"/>
+   ```
+   - Skeleton Laravel 12 menonaktifkan dua baris DB. Tanpa itu, `php artisan test` memakai database di `.env` (**MySQL `inventory_stok`**) dan trait `RefreshDatabase` pada tes Breeze menjalankan `migrate:fresh`, yang **menghapus seluruh tabel dan datanya**.
+   - `APP_URL` di `.env` berisi subfolder (`/pw_project/public`). Tanpa `APP_URL=http://localhost` di `phpunit.xml`, semua request dalam tes menuju `/pw_project/public/...` dan menghasilkan 404.
+   - Ekstensi `pdo_sqlite` sudah aktif di XAMPP (dicek dengan `php -m | findstr /i sqlite`).
+5. (Disarankan) Buat titik pemulihan sebelum agen bekerja:
    ```bat
    git init
    git add .
@@ -1845,6 +1854,8 @@ Bila semuanya lulus, tempel prompt berikut di panel agen Antigravity:
 | `Target class [role] does not exist` | Alias middleware belum didaftarkan | Daftarkan di `bootstrap\app.php`, lalu `php artisan optimize:clear` |
 | Foto barang tidak tampil (404) | `storage:link` belum/ gagal | A.10 butir 2 (Administrator / Developer Mode) |
 | Perubahan `.env` tidak berefek | Konfigurasi ter-cache | `php artisan config:clear` |
+| `php artisan test`: hampir semua tes gagal dengan "received 404" | `APP_URL` di `.env` memakai subfolder, dan `phpunit.xml` belum menimpanya | Tambahkan `<env name="APP_URL" value="http://localhost"/>` di `phpunit.xml` (A.10 butir 4) |
+| Tabel/data di `inventory_stok` hilang setelah `php artisan test` | `phpunit.xml` belum diarahkan ke SQLite memori, sehingga `RefreshDatabase` menjalankan `migrate:fresh` di MySQL | Aktifkan `DB_CONNECTION=sqlite` dan `DB_DATABASE=:memory:` di `phpunit.xml`, lalu `php artisan migrate:fresh --seed` untuk memulihkan data demo |
 | Halaman selain beranda 404 di Apache | `mod_rewrite` / `.htaccess` | Pastikan `mod_rewrite` aktif dan akses lewat `/public` |
 | Breeze: `npm run build` gagal setelah instal | Sisa paket Tailwind 4 / versi Node lama | `npm uninstall @tailwindcss/vite`, perbarui Node ke 20.19+, `npm install`, `npm run build` |
 

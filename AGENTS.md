@@ -32,7 +32,7 @@ npm -v
 php artisan --version
 git status
 ```
-Lalu periksa dan laporkan: apakah `laravel/breeze`, `spatie/laravel-permission`, `barryvdh/laravel-dompdf`, `maatwebsite/excel` sudah ada di `composer.json`; apakah `.env` sudah mengarah ke database MySQL `inventory_stok` (bawaan skeleton adalah `DB_CONNECTION=sqlite`); apakah `node_modules` dan `tailwind.config.js` sudah ada (tanda Breeze terpasang); apakah ada migration/model/controller buatan sendiri; apakah tabel `sessions` sudah ada di MySQL (`php artisan migrate:status`).
+Lalu periksa dan laporkan: apakah `laravel/breeze`, `spatie/laravel-permission`, `barryvdh/laravel-dompdf`, `maatwebsite/excel` sudah ada di `composer.json`; apakah `.env` sudah mengarah ke database MySQL `inventory_stok` (bawaan skeleton adalah `DB_CONNECTION=sqlite`); apakah `node_modules` dan `tailwind.config.js` sudah ada (tanda Breeze terpasang); apakah `phpunit.xml` sudah aman untuk tes (lihat §8); apakah ada migration/model/controller buatan sendiri; apakah tabel `sessions` sudah ada di MySQL (`php artisan migrate:status`).
 
 Aturan hasil preflight:
 - PHP lebih rendah dari syarat versi Laravel yang terpasang (Laravel 11/12: PHP 8.2+, Laravel 13: PHP 8.3+), atau Laravel di luar 11.x–13.x → **berhenti dan laporkan**, jangan lanjut. Laravel **11, 12, dan 13 semuanya diterima**; catat versinya di laporan.
@@ -149,6 +149,7 @@ Kerjakan **berurutan**. Setelah tiap fase: jalankan pemeriksaan, laporkan sesuai
 ## 8. Pengujian
 
 - Gunakan kerangka tes yang sudah terpasang (`php artisan test`). Basis data tes: SQLite in-memory atau database terpisah `inventory_stok_test`, **jangan** `inventory_stok`.
+- **Periksa `phpunit.xml` sebelum menjalankan tes apa pun.** Wajib ada `<env name="DB_CONNECTION" value="sqlite"/>`, `<env name="DB_DATABASE" value=":memory:"/>` (tidak dikomentari), dan `<env name="APP_URL" value="http://localhost"/>`. Skeleton Laravel 12 menonaktifkan baris DB, sehingga `RefreshDatabase` akan menjalankan `migrate:fresh` pada MySQL `inventory_stok` dan menghapus datanya. `APP_URL` di `.env` memakai subfolder (`/pw_project/public`), yang membuat semua request tes 404 bila tidak ditimpa. Jika belum benar, perbaiki dulu dan laporkan.
 - Tes wajib (minimal):
   - `StockService`: tambah stok; kurangi stok; tolak stok kurang tanpa mengubah apa pun; rollback bila item kedua gagal; kartu stok tercatat dengan `stok_sebelum/sesudah` benar.
   - Akses per peran: staff tak bisa `/users`; pimpinan tak bisa `/stock-ins/create`; pimpinan bisa `/reports/*`; tamu dialihkan ke login.
