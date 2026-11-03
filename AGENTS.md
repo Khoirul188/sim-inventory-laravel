@@ -45,7 +45,8 @@ Aturan hasil preflight:
 
 | Topik | Keputusan |
 |---|---|
-| Framework | Laravel 11, 12, atau 13 (ikuti versi yang terpasang di project); PHP sesuai syarat versi itu |
+| Framework | **Laravel 12.62.0, PHP 8.2.12** terpasang di project ini (jika preflight menunjukkan versi lain, ikuti yang terpasang) |
+| Versi paket terpasang | Spatie Permission **6.25.0**, Laravel Excel **3.1.70** (PhpSpreadsheet 1.30.7), DomPDF **3.1.x**, Blade Heroicons **2.7.0**. Karena PHP 8.2, rilis terbaru paket-paket itu (butuh PHP 8.3) tidak terpasang. **Gunakan API sesuai versi terpasang**, bukan dokumentasi versi lebih baru (misalnya Laravel Excel 4.x). Jangan menjalankan `composer update` untuk menaikkan versi tanpa izin |
 | Auth | Laravel Breeze **Blade** (bukan Livewire/Inertia). **Registrasi publik dimatikan**: hapus route dan tautan daftar. Akun dibuat admin. |
 | Role | `spatie/laravel-permission`; middleware alias `role` didaftarkan di `bootstrap/app.php` |
 | Database | MySQL `inventory_stok`, engine InnoDB, utf8mb4. Ganti `DB_CONNECTION` dari `sqlite` ke `mysql`; `SESSION_DRIVER`, `CACHE_STORE`, `QUEUE_CONNECTION` tetap `database` (tabelnya dari migration bawaan) |

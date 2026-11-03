@@ -148,10 +148,17 @@ Diambil dari tangkapan layar Antigravity IDE:
 | Kode buatan sendiri | Belum ada (project belum diubah) |
 | Dokumen panduan agen | Belum ada (`AGENTS.md` dan `docs/` belum ditambahkan) |
 | Konfigurasi Tailwind | Belum ada (`tailwind.config.js` dan `postcss.config.js` tidak ada) |
-| Versi Laravel | **Belum terkonfirmasi** dari tangkapan layar. Daftar file cocok dengan skeleton Laravel 11 dan 12 |
-| Paket tambahan | Belum ada yang diketahui terpasang (Breeze, Spatie, DomPDF, Excel) |
+| Versi Laravel | **12.62.0** (terkonfirmasi 2 Nov 2026) · PHP 8.2.12 (XAMPP, ZTS) · Composer 2.10.1 · Node 24.15.0 · npm 11.12.1 |
+| Paket tambahan | Belum ada yang diketahui terpasang pada tangkapan layar awal (lihat pembaruan 3 Nov di bawah) |
 
 > Versi pasti dicek dengan `php artisan --version` (langkah A.2). Rancangan ini berlaku untuk Laravel 11, 12, dan 13. Perbedaannya dirangkum di 4.4.
+
+**Pembaruan 3 November 2026 (persiapan A.1–A.7 selesai):**
+- `.env` mengarah ke MySQL `inventory_stok`; migrasi bawaan dan migrasi Spatie sudah dijalankan.
+- Breeze (Blade) terpasang; halaman `/login` tampil dengan gaya Tailwind lewat `http://localhost/pw_project/public/login`.
+- Paket terpasang: Spatie Permission **6.25.0**, Laravel Excel **3.1.70** (PhpSpreadsheet 1.30.7), DomPDF **3.1.2** (dompdf 3.1.6), Blade Heroicons **2.7.0**.
+- Karena PHP 8.2, rilis terbaru Spatie (8.x) dan Laravel Excel (4.x) yang butuh PHP 8.3 **tidak** terpasang. Composer otomatis memilih rilis yang cocok (hasil yang diharapkan).
+- Belum dikerjakan: terjemahan `id`, paket npm (Chart.js, font Inter), `storage:link`, zona waktu, penempatan dokumen panduan.
 
 ### 4.2 Analisis kesenjangan (kondisi saat ini → target)
 
@@ -683,18 +690,18 @@ flowchart LR
 | Lapisan | Teknologi | Versi | Catatan |
 |---|---|---|---|
 | Bahasa | PHP | 8.2+ (8.3+ jika Laravel 13) | Dicek dengan `php -v`. Karena `vendor` sudah terpasang, versi PHP project sudah memenuhi syarat Laravel yang terpasang |
-| Framework | Laravel | 11.x, 12.x, atau 13.x (sesuai project) | MVC, Eloquent, migration, validasi |
+| Framework | Laravel | 11.x, 12.x, atau 13.x (sesuai project). **Terpasang: 12.62.0** | MVC, Eloquent, migration, validasi |
 | Autentikasi | Laravel Breeze (stack Blade) | versi yang cocok dipilih Composer | Mendukung Laravel 11/12/13 |
-| Otorisasi | spatie/laravel-permission | versi yang cocok dipilih Composer | Role: admin, staff, pimpinan |
+| Otorisasi | spatie/laravel-permission | **6.25.0** (terpasang; rilis 8.x butuh PHP 8.3) | Role: admin, staff, pimpinan |
 | Database | MySQL / MariaDB (XAMPP) | sesuai XAMPP | Database `inventory_stok`, InnoDB, utf8mb4 |
 | Template | Blade | bawaan | |
 | CSS | Tailwind CSS | **3.x** (dipasang Breeze) | Token warna di `tailwind.config.js`; plugin `@tailwindcss/forms` |
 | JavaScript | Alpine.js | 3.x (dipasang Breeze) | Baris dinamis form, dropdown, modal |
 | Grafik | Chart.js | 4.x (npm) | Diimpor lewat Vite, tanpa CDN |
 | Font | Inter (`@fontsource-variable/inter`, npm) | terbaru | Tanpa CDN agar jalan offline |
-| Ikon | blade-ui-kit/blade-heroicons | terbaru | Gaya outline |
-| PDF | barryvdh/laravel-dompdf | versi yang cocok | |
-| Excel | maatwebsite/excel | versi yang cocok | Butuh ekstensi PHP `gd`, `zip` |
+| Ikon | blade-ui-kit/blade-heroicons | **2.7.0** | Gaya outline |
+| PDF | barryvdh/laravel-dompdf | **3.1.2** (dompdf 3.1.6) | |
+| Excel | maatwebsite/excel | **3.1.70** (PhpSpreadsheet 1.30.7; rilis 4.x butuh PHP 8.3) | Butuh ekstensi PHP `gd`, `zip` (sudah aktif) |
 | Terjemahan | laravel-lang/common | versi yang cocok | `php artisan lang:add id` (alternatif: berkas manual) |
 | Build frontend | Vite + Node.js | Vite bawaan skeleton; Node.js 20.19+ atau 22 LTS | |
 | Server lokal | XAMPP (Apache + MySQL) | PHP sesuai syarat Laravel | |
@@ -703,7 +710,7 @@ flowchart LR
 | Pengujian | PHPUnit (atau Pest bila dipilih saat instal Breeze) | bawaan | `php artisan test` |
 | Gaya kode | Laravel Pint | bawaan skeleton | `vendor\bin\pint` |
 
-**Catatan versi paket.** Composer memilih sendiri versi paket yang cocok dengan versi PHP dan Laravel project. Jangan memakai `--ignore-platform-reqs`. Contoh dari berkas `composer.json` paket terbaru: Spatie Permission dan Laravel Excel versi terbaru mensyaratkan PHP 8.3 dan Laravel 12/13; pada PHP 8.2 atau Laravel 11, Composer akan memakai rilis sebelumnya yang masih kompatibel.
+**Catatan versi paket.** Composer memilih sendiri versi paket yang cocok dengan versi PHP dan Laravel project. Jangan memakai `--ignore-platform-reqs`. Contoh dari berkas `composer.json` paket terbaru: Spatie Permission dan Laravel Excel versi terbaru mensyaratkan PHP 8.3 dan Laravel 12/13; pada PHP 8.2 atau Laravel 11, Composer akan memakai rilis sebelumnya yang masih kompatibel. **Kode harus memakai API versi yang terpasang** (Spatie 6.x, Laravel Excel 3.1), bukan dokumentasi versi yang lebih baru (misalnya Laravel Excel 4.x).
 
 **Tailwind 3 vs 4.** Lihat 4.3 butir 3. Jangan mencampur konfigurasi Tailwind 4 (`@theme`, `@import "tailwindcss"`) dengan Breeze.
 
