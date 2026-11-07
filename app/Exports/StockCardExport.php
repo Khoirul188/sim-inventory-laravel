@@ -37,15 +37,15 @@ class StockCardExport extends BaseReportExport
 
             $rows->push([
                 (int) ($idx + 1),
-                $movement->created_at?->translatedFormat('d M Y H:i') ?? '—',
-                self::sanitizeText($movement->product?->kode_barang ?? '—'),
-                self::sanitizeText($movement->product?->nama ?? '—'),
+                $movement->created_at?->translatedFormat('d M Y H:i') ?? '',
+                self::sanitizeText($movement->product?->kode_barang),
+                self::sanitizeText($movement->product?->nama),
                 self::sanitizeText($movement->nomor_referensi),
                 $jenisLabel,
                 (int) $movement->jumlah,
                 (int) $movement->stok_sebelum,
                 (int) $movement->stok_sesudah,
-                self::sanitizeText($movement->user?->name ?? '—'),
+                self::sanitizeText($movement->user?->name),
             ]);
         }
 

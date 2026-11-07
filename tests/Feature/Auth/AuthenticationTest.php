@@ -87,4 +87,31 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_tc23_six_failed_login_attempts_triggers_rate_limit(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'ratelimit@inventory.test',
+        ]);
+
+        for ($i = 1; $i <= 5; $i++) {
+            $this->post('/login', [
+                'email' => $user->email,
+                'password' => 'wrong-password',
+            ])->assertSessionHasErrors([
+                'email' => 'Email atau kata sandi salah.',
+            ]);
+        }
+
+        // Percobaan ke-6 diblokir sementara (RateLimiter)
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+
+        $this->assertGuest();
+        $response->assertSessionHasErrors(['email']);
+        $errorMsg = session('errors')->first('email');
+        $this->assertNotSame('Email atau kata sandi salah.', $errorMsg);
+    }
 }

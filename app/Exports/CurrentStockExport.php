@@ -42,14 +42,38 @@ class CurrentStockExport extends BaseReportExport
                 (int) ($idx + 1),
                 self::sanitizeText($product->kode_barang),
                 self::sanitizeText($product->nama),
-                self::sanitizeText($product->category?->nama ?? '—'),
-                self::sanitizeText($product->unit?->singkatan ?? '—'),
+                self::sanitizeText($product->category?->nama),
+                self::sanitizeText($product->unit?->singkatan),
                 (int) $product->stok,
                 (int) $product->stok_minimum,
                 $statusLabel,
-                self::sanitizeText($product->lokasi_rak ?? '—'),
+                self::sanitizeText($product->lokasi_rak),
             ]);
         }
+
+        $rows->push([
+            '',
+            '',
+            '',
+            '',
+            'Total Jenis Barang',
+            (int) ($data['summary']['totalJenisBarang'] ?? 0),
+            '',
+            '',
+            '',
+        ]);
+
+        $rows->push([
+            '',
+            '',
+            '',
+            '',
+            'Total Stok',
+            (int) ($data['summary']['totalStok'] ?? 0),
+            '',
+            '',
+            '',
+        ]);
 
         return $rows;
     }

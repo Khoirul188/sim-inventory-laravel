@@ -122,9 +122,13 @@
     <div class="header">
         <div class="system-name">{{ $appName }}</div>
         <div class="report-title">{{ $meta['title'] }}</div>
+        @php
+            $cleanFilterSummary = str_replace([' · ', ' — '], [' | ', ' - '], $meta['filterSummary']);
+            $cleanFilterSummary = preg_replace('/^Periode:\s*/i', '', $cleanFilterSummary);
+        @endphp
         <table class="meta-table">
             <tr>
-                <td><strong>Filter / Periode:</strong> {{ str_replace([' · ', ' — '], [' | ', ' - '], $meta['filterSummary']) }}</td>
+                <td><strong>Filter / Periode:</strong> {{ $cleanFilterSummary }}</td>
                 <td class="meta-right"><strong>Tanggal Cetak:</strong> {{ $meta['printedAt'] }}</td>
             </tr>
             <tr>
@@ -145,15 +149,15 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width: 28px;" class="text-center">No</th>
-                    <th style="width: 70px;">Kode</th>
-                    <th>Nama Barang</th>
-                    <th>Kategori</th>
-                    <th style="width: 48px;">Satuan</th>
-                    <th style="width: 55px;" class="text-right">Stok</th>
-                    <th style="width: 60px;" class="text-right">Stok Min.</th>
-                    <th style="width: 60px;">Status</th>
-                    <th style="width: 65px;">Lokasi Rak</th>
+                    <th style="width: 22px;" class="text-center">No</th>
+                    <th style="width: 58px;">Kode</th>
+                    <th style="width: 34%;">Nama Barang</th>
+                    <th style="width: 20%;">Kategori</th>
+                    <th style="width: 36px;">Satuan</th>
+                    <th style="width: 42px;" class="text-right">Stok</th>
+                    <th style="width: 48px;" class="text-right">Stok Min.</th>
+                    <th style="width: 48px;">Status</th>
+                    <th style="width: 42px;">Lokasi Rak</th>
                 </tr>
             </thead>
             <tbody>

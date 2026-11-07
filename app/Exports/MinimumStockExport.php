@@ -38,13 +38,46 @@ class MinimumStockExport extends BaseReportExport
                 (int) ($idx + 1),
                 self::sanitizeText($product->kode_barang),
                 self::sanitizeText($product->nama),
-                self::sanitizeText($product->category?->nama ?? '—'),
+                self::sanitizeText($product->category?->nama),
                 (int) $product->stok,
                 (int) $product->stok_minimum,
                 (int) $kekurangan,
                 $statusLabel,
             ]);
         }
+
+        $rows->push([
+            '',
+            '',
+            '',
+            'Jumlah Barang Menipis (Termasuk Habis)',
+            '',
+            '',
+            (int) ($data['summary']['jumlahMenipis'] ?? 0),
+            '',
+        ]);
+
+        $rows->push([
+            '',
+            '',
+            '',
+            'Jumlah Barang Habis (Stok = 0)',
+            '',
+            '',
+            (int) ($data['summary']['jumlahHabis'] ?? 0),
+            '',
+        ]);
+
+        $rows->push([
+            '',
+            '',
+            '',
+            'Total Kekurangan Stok',
+            '',
+            '',
+            (int) ($data['summary']['totalKekurangan'] ?? 0),
+            '',
+        ]);
 
         return $rows;
     }

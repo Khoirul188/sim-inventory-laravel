@@ -22,8 +22,8 @@ abstract class BaseReportExport extends DefaultValueBinder implements FromCollec
      */
     public static function sanitizeText(?string $value): string
     {
-        $text = (string) ($value ?? '');
-        if ($text === '') {
+        $text = trim((string) ($value ?? ''));
+        if ($text === '' || $text === '-' || $text === '—') {
             return '';
         }
 
@@ -31,21 +31,35 @@ abstract class BaseReportExport extends DefaultValueBinder implements FromCollec
             return "'".$text;
         }
 
-        return $text;
+        return (string) $value;
     }
 
     /**
-     * Pastikan angka disimpan sebagai tipe numerik asli (bukan teks) dan teks berbahaya tidak dieksekusi sebagai rumus.
+     * Pastikan angka disimpan sebagai tipe numerik asli (bukan teks), nilai kosong tetap sel kosong,
+     * dan teks berbahaya yang diawali =, +, -, @ tidak dieksekusi sebagai rumus.
      */
     public function bindValue(Cell $cell, $value): bool
     {
+        if ($value === null || $value === '') {
+            $cell->setValueExplicit('', DataType::TYPE_STRING);
+
+            return true;
+        }
+
         if (is_int($value) || is_float($value)) {
             $cell->setValueExplicit($value, DataType::TYPE_NUMERIC);
 
             return true;
         }
 
-        if (is_string($value) && $value !== '') {
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '' || $trimmed === '-' || $trimmed === '—') {
+                $cell->setValueExplicit('', DataType::TYPE_STRING);
+
+                return true;
+            }
+
             if (in_array($value[0], ['=', '+', '-', '@'], true)) {
                 $cell->setValueExplicit("'".$value, DataType::TYPE_STRING);
 

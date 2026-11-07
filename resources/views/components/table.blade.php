@@ -3,7 +3,7 @@
     'footer' => null,
 ])
 
-<div {{ $attributes->merge(['class' => 'overflow-x-auto']) }}>
+<div {{ $attributes->merge(['class' => 'relative overflow-x-auto']) }}>
     <table class="w-full text-left border-collapse">
         @isset($head)
             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-subtle border-b border-line">

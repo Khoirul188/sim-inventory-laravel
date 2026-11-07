@@ -447,11 +447,12 @@ class ReportTest extends TestCase
             $pdfBinary = $pdfResponse->getContent();
             $this->assertStringStartsWith('%PDF-', $pdfBinary);
 
-            // Verifikasi stream PDF memuat kop, periode/filter, nama pencetak, dan nomor halaman "Halaman 1 dari 1"
+            // Verifikasi stream PDF memuat kop, periode/filter (tanpa pengulangan "Periode: Periode:"), nama pencetak, dan nomor halaman
             $pdfText = $this->extractPdfStreamText($pdfBinary);
             $this->assertStringContainsString('SIM Inventory', $pdfText);
             $this->assertStringContainsString($admin->name, $pdfText);
             $this->assertStringContainsString('Halaman 1 dari 1', $pdfText);
+            $this->assertStringNotContainsString('Periode: Periode:', $pdfText);
 
             // Unduh Excel
             $excelResponse = $this->get(route('reports.excel', $routeParams));
@@ -470,13 +471,25 @@ class ReportTest extends TestCase
 
             $this->assertSame(DataType::TYPE_NUMERIC, $qtyCell->getDataType());
             $this->assertEquals($cfg['expectedQty'], $qtyCell->getValue());
+
+            // Pastikan baris ringkasan di bawah tabel Excel juga bertipe numerik
+            if (in_array($jenis, ['stok', 'masuk', 'keluar', 'minimum'], true)) {
+                $lastRow = $sheet->getHighestDataRow();
+                $summaryCol = $jenis === 'minimum' ? 'G' : $cfg['qtyCol'];
+                $summaryCell = $sheet->getCell($summaryCol.$lastRow);
+                $this->assertSame(DataType::TYPE_NUMERIC, $summaryCell->getDataType());
+            }
         }
 
-        // 2. Uji sanitasi rumus (=, +, -, @) di Excel (TC-38 & PRD §15)
+        // 2. Uji sanitasi rumus (=, +, -, @) di Excel (TC-38 & PRD §15) serta nilai kosong/strip tunggal tidak diberi tanda kutip
         $this->assertSame("'=SUM(A1:A2)", BaseReportExport::sanitizeText('=SUM(A1:A2)'));
         $this->assertSame("'+12345", BaseReportExport::sanitizeText('+12345'));
         $this->assertSame("'-12345", BaseReportExport::sanitizeText('-12345'));
         $this->assertSame("'@cmd", BaseReportExport::sanitizeText('@cmd'));
+        $this->assertSame('', BaseReportExport::sanitizeText(null));
+        $this->assertSame('', BaseReportExport::sanitizeText(''));
+        $this->assertSame('', BaseReportExport::sanitizeText('-'));
+        $this->assertSame('', BaseReportExport::sanitizeText('—'));
         $this->assertSame('Kertas HVS Normal', BaseReportExport::sanitizeText('Kertas HVS Normal'));
 
         $export = new CurrentStockExport([]);

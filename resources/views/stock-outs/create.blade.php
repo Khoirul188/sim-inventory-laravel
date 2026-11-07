@@ -124,12 +124,12 @@
 
         <!-- Kartu Daftar Item Barang Keluar (Baris Dinamis Alpine.js) -->
         <x-card class="!p-0 overflow-hidden">
-            <div class="p-5 md:p-6 border-b border-line flex items-center justify-between gap-4">
+            <div class="p-5 md:p-6 border-b border-line flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h2 class="text-base font-semibold text-ink">Rincian Barang Keluar</h2>
                     <p class="text-xs text-subtle mt-0.5">Pilih barang dan masukkan jumlah keluar. Jumlah tidak boleh melebihi stok tersedia.</p>
                 </div>
-                <x-button type="button" variant="secondary" @click="addRow()">
+                <x-button type="button" variant="secondary" class="w-full sm:w-auto shrink-0" @click="addRow()">
                     <x-icon name="plus" class="w-4 h-4" />
                     <span>Tambah Baris</span>
                 </x-button>
@@ -141,13 +141,13 @@
                 </div>
             @endif
 
-            <div class="overflow-x-auto">
+            <div class="relative overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-subtle border-b border-line">
                         <tr>
-                            <th class="px-5 py-3 text-left min-w-[280px]">Barang <span class="text-danger">*</span></th>
-                            <th class="px-4 py-3 text-right w-40">Tersedia</th>
-                            <th class="px-4 py-3 text-right w-40">Jumlah Keluar <span class="text-danger">*</span></th>
+                            <th class="px-5 py-3 text-left min-w-[260px]">Barang <span class="text-danger">*</span></th>
+                            <th class="px-4 py-3 text-right min-w-[100px] w-40">Tersedia</th>
+                            <th class="px-4 py-3 text-right min-w-[120px] w-40">Jumlah Keluar <span class="text-danger">*</span></th>
                             <th class="px-4 py-3 text-center w-14"></th>
                         </tr>
                     </thead>

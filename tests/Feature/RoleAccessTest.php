@@ -6,6 +6,8 @@ use App\Http\Middleware\EnsureUserIsActive;
 use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
+use Illuminate\Contracts\Encryption\Encrypter;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -197,5 +199,50 @@ class RoleAccessTest extends TestCase
             ->assertSessionHas('error', 'Sistem harus memiliki minimal satu admin aktif.');
 
         $this->assertDatabaseHas('users', ['id' => $admin->id, 'is_active' => true]);
+    }
+
+    public function test_custom_error_pages_403_404_419_render_indonesian_text_without_leaking_details(): void
+    {
+        // 1. Tamu (belum login) membuka URL acak -> 404 dengan tombol mengarah ke halaman login
+        $res404Guest = $this->get('/url-acak-tamu-404');
+        $res404Guest->assertStatus(404)
+            ->assertSee('Halaman tidak ditemukan.')
+            ->assertSee('Ke Halaman Login')
+            ->assertSee(route('login'), false)
+            ->assertDontSee('Kembali ke Dashboard');
+
+        // 2. TC-36: Kirim form tanpa token CSRF -> 419 dengan halaman kustom bahasa Indonesia
+        $this->app->bind(ValidateCsrfToken::class, fn ($app) => new class($app, $app->make(Encrypter::class)) extends ValidateCsrfToken
+        {
+            protected function runningUnitTests(): bool
+            {
+                return false;
+            }
+        });
+
+        $res419 = $this->post('/login', [
+            'email' => 'staff@inventory.test',
+            'password' => 'password',
+        ]);
+        $res419->assertStatus(419)
+            ->assertSee('Sesi Anda Telah Berakhir')
+            ->assertSee('Ke Halaman Login');
+
+        $staff = User::where('email', 'staff@inventory.test')->firstOrFail();
+
+        // 3. Staff membuka /users -> 403 dengan teks bahasa Indonesia, tanpa bocoran pesan Inggris Spatie
+        $res403 = $this->actingAs($staff)->get('/users');
+        $res403->assertStatus(403)
+            ->assertSee('Anda tidak memiliki izin untuk membuka halaman ini.')
+            ->assertSee('Kembali ke Dashboard')
+            ->assertDontSee('User does not have the right roles.')
+            ->assertDontSee('Spatie\\Permission');
+
+        // 4. Pengguna login membuka URL acak -> 404 dengan teks bahasa Indonesia dan tombol Kembali ke Dashboard
+        $res404Auth = $this->actingAs($staff)->get('/halaman-tidak-ada-sama-sekali');
+        $res404Auth->assertStatus(404)
+            ->assertSee('Halaman tidak ditemukan.')
+            ->assertSee('Kembali ke Dashboard')
+            ->assertDontSee('Symfony\\Component\\HttpKernel');
     }
 }

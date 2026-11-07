@@ -38,16 +38,28 @@ class StockInReportExport extends BaseReportExport
 
             $rows->push([
                 (int) ($idx + 1),
-                $item->stockIn?->tanggal?->translatedFormat('d M Y') ?? '—',
-                self::sanitizeText($item->stockIn?->no_transaksi ?? '—'),
-                self::sanitizeText($item->stockIn?->supplier?->nama ?? '—'),
-                self::sanitizeText($item->product?->kode_barang ?? '—'),
-                self::sanitizeText($item->product?->nama ?? '—'),
+                $item->stockIn?->tanggal?->translatedFormat('d M Y') ?? '',
+                self::sanitizeText($item->stockIn?->no_transaksi),
+                self::sanitizeText($item->stockIn?->supplier?->nama),
+                self::sanitizeText($item->product?->kode_barang),
+                self::sanitizeText($item->product?->nama),
                 $jumlah,
                 $hargaBeli,
                 $subtotal,
             ]);
         }
+
+        $rows->push([
+            '',
+            '',
+            '',
+            '',
+            '',
+            'Total',
+            (int) ($data['summary']['totalJumlah'] ?? 0),
+            '',
+            (float) ($data['summary']['totalNilai'] ?? 0),
+        ]);
 
         return $rows;
     }

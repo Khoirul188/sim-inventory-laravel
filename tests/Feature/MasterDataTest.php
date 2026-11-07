@@ -283,4 +283,49 @@ class MasterDataTest extends TestCase
         $product->forceDelete();
         Storage::disk('public')->assertMissing($finalPhotoPath);
     }
+
+    public function test_tc35_and_tc37_xss_escaped_and_fake_php_image_rejected(): void
+    {
+        Storage::fake('public');
+
+        $category = Category::firstOrFail();
+        $unit = Unit::firstOrFail();
+
+        // TC-35: Nama barang berisi tag <script> disimpan dan di-escape otomatis di HTML (tidak dieksekusi)
+        $xssName = '<script>alert(1)</script> Kertas Uji';
+        $this->actingAs($this->staff)
+            ->post(route('products.store'), [
+                'kode_barang' => 'BRG-XSS1',
+                'nama' => $xssName,
+                'category_id' => $category->id,
+                'unit_id' => $unit->id,
+                'harga_beli' => 10000,
+                'stok_minimum' => 5,
+            ])
+            ->assertRedirect(route('products.index'));
+
+        $product = Product::where('kode_barang', 'BRG-XSS1')->firstOrFail();
+
+        $this->actingAs($this->staff)
+            ->get(route('products.show', $product))
+            ->assertOk()
+            ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt; Kertas Uji', false)
+            ->assertDontSee('<script>alert(1)</script>', false);
+
+        // TC-37: Unggah berkas .php yang diganti namanya menjadi .jpg -> ditolak validasi image/mimes
+        $fakePhpFile = UploadedFile::fake()->create('exploit.jpg', 12, 'application/x-php');
+
+        $this->actingAs($this->staff)
+            ->post(route('products.store'), [
+                'kode_barang' => 'BRG-PHP1',
+                'nama' => 'Barang Berkas Palsu',
+                'category_id' => $category->id,
+                'unit_id' => $unit->id,
+                'stok_minimum' => 2,
+                'foto' => $fakePhpFile,
+            ])
+            ->assertSessionHasErrors(['foto']);
+
+        $this->assertDatabaseMissing('products', ['kode_barang' => 'BRG-PHP1']);
+    }
 }

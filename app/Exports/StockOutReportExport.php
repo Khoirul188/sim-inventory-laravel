@@ -33,15 +33,26 @@ class StockOutReportExport extends BaseReportExport
         foreach ($data['rows']->values() as $idx => $item) {
             $rows->push([
                 (int) ($idx + 1),
-                $item->stockOut?->tanggal?->translatedFormat('d M Y') ?? '—',
-                self::sanitizeText($item->stockOut?->no_transaksi ?? '—'),
-                self::sanitizeText($item->stockOut?->tujuan ?? '—'),
-                self::sanitizeText($item->stockOut?->alasan_label ?? '—'),
-                self::sanitizeText($item->product?->kode_barang ?? '—'),
-                self::sanitizeText($item->product?->nama ?? '—'),
+                $item->stockOut?->tanggal?->translatedFormat('d M Y') ?? '',
+                self::sanitizeText($item->stockOut?->no_transaksi),
+                self::sanitizeText($item->stockOut?->tujuan),
+                self::sanitizeText($item->stockOut?->alasan_label),
+                self::sanitizeText($item->product?->kode_barang),
+                self::sanitizeText($item->product?->nama),
                 (int) $item->jumlah,
             ]);
         }
+
+        $rows->push([
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            'Total Jumlah Keluar',
+            (int) ($data['summary']['totalJumlah'] ?? 0),
+        ]);
 
         return $rows;
     }
