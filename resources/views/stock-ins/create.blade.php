@@ -159,7 +159,7 @@
                                                 :value="product.id"
                                                 :disabled="isProductTaken(product.id, index)"
                                                 x-show="!isProductTaken(product.id, index) || String(row.product_id) === String(product.id)"
-                                                x-text="product.kode + ' — ' + product.nama + ' (Stok: ' + product.stok + ' ' + product.satuan + ')'"
+                                                x-text="product.kode + ' — ' + product.nama + ' (stok ' + product.stok + ' ' + product.satuan + ')'"
                                             ></option>
                                         </template>
                                     </select>

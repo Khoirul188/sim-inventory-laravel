@@ -19,7 +19,7 @@ class StockOutRequest extends FormRequest
         return [
             'tanggal' => ['required', 'date', 'before_or_equal:today'],
             'alasan' => ['required', Rule::in(['pemakaian', 'penjualan', 'rusak', 'koreksi', 'lainnya'])],
-            'tujuan' => ['nullable', 'string', 'max:150'],
+            'tujuan' => ['required_if:alasan,pemakaian,penjualan', 'nullable', 'string', 'max:150'],
             'keterangan' => ['required_if:alasan,koreksi,lainnya', 'nullable', 'string', 'max:500'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
@@ -70,8 +70,9 @@ class StockOutRequest extends FormRequest
             'tanggal.required' => 'Tanggal transaksi wajib diisi.',
             'tanggal.date' => 'Format tanggal transaksi tidak valid.',
             'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
-            'alasan.required' => 'Alasan pengeluaran wajib dipilih.',
+            'alasan.required' => 'Alasan wajib dipilih.',
             'alasan.in' => 'Alasan pengeluaran tidak valid.',
+            'tujuan.required_if' => 'Tujuan / penerima wajib diisi untuk alasan ini.',
             'tujuan.max' => 'Tujuan maksimal 150 karakter.',
             'keterangan.required_if' => 'Keterangan wajib diisi untuk alasan ini.',
             'keterangan.max' => 'Keterangan maksimal 500 karakter.',
@@ -88,4 +89,3 @@ class StockOutRequest extends FormRequest
         ];
     }
 }
-

@@ -327,4 +327,3 @@ class TransactionSeeder extends Seeder
         ], $staff);
     }
 }
-

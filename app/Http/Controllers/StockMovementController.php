@@ -52,4 +52,3 @@ class StockMovementController extends Controller
         return view('stock-movements.index', compact('products', 'selectedProduct', 'movements'));
     }
 }
-

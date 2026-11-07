@@ -52,4 +52,3 @@ class StockInRequest extends FormRequest
         ];
     }
 }
-

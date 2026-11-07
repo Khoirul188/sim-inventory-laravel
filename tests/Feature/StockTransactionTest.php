@@ -245,6 +245,7 @@ class StockTransactionTest extends TestCase
             ->post(route('stock-outs.store'), [
                 'tanggal' => now()->toDateString(),
                 'alasan' => 'pemakaian',
+                'tujuan' => 'Bagian Umum',
                 'items' => [
                     ['product_id' => $product->id, 'jumlah' => -3],
                 ],
@@ -265,7 +266,49 @@ class StockTransactionTest extends TestCase
                 'tanggal' => 'Tanggal tidak boleh melebihi hari ini.',
             ]);
 
-        // TC-09: Alasan koreksi tanpa keterangan -> ditolak
+        // TC-09a: Alasan kosong -> ditolak
+        $this->actingAs($this->staff)
+            ->post(route('stock-outs.store'), [
+                'tanggal' => now()->toDateString(),
+                'alasan' => '',
+                'tujuan' => 'Bagian Umum',
+                'items' => [
+                    ['product_id' => $product->id, 'jumlah' => 1],
+                ],
+            ])
+            ->assertSessionHasErrors([
+                'alasan' => 'Alasan wajib dipilih.',
+            ]);
+
+        // TC-09b: Alasan pemakaian tanpa tujuan -> ditolak
+        $this->actingAs($this->staff)
+            ->post(route('stock-outs.store'), [
+                'tanggal' => now()->toDateString(),
+                'alasan' => 'pemakaian',
+                'tujuan' => '',
+                'items' => [
+                    ['product_id' => $product->id, 'jumlah' => 1],
+                ],
+            ])
+            ->assertSessionHasErrors([
+                'tujuan' => 'Tujuan / penerima wajib diisi untuk alasan ini.',
+            ]);
+
+        // TC-09c: Alasan penjualan tanpa tujuan -> ditolak
+        $this->actingAs($this->staff)
+            ->post(route('stock-outs.store'), [
+                'tanggal' => now()->toDateString(),
+                'alasan' => 'penjualan',
+                'tujuan' => '',
+                'items' => [
+                    ['product_id' => $product->id, 'jumlah' => 1],
+                ],
+            ])
+            ->assertSessionHasErrors([
+                'tujuan' => 'Tujuan / penerima wajib diisi untuk alasan ini.',
+            ]);
+
+        // TC-09d: Alasan koreksi tanpa keterangan -> ditolak
         $this->actingAs($this->staff)
             ->post(route('stock-outs.store'), [
                 'tanggal' => now()->toDateString(),
@@ -278,6 +321,39 @@ class StockTransactionTest extends TestCase
             ->assertSessionHasErrors([
                 'keterangan' => 'Keterangan wajib diisi untuk alasan ini.',
             ]);
+
+        // TC-09e: Alasan rusak tanpa tujuan -> diterima
+        $stokSebelum = $product->fresh()->stok;
+        $this->actingAs($this->staff)
+            ->post(route('stock-outs.store'), [
+                'tanggal' => now()->toDateString(),
+                'alasan' => 'rusak',
+                'tujuan' => '',
+                'keterangan' => 'Kemasan lembap',
+                'items' => [
+                    ['product_id' => $product->id, 'jumlah' => 1],
+                ],
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertSame($stokSebelum - 1, $product->fresh()->stok);
+    }
+
+    public function test_product_dropdown_in_transaction_forms_is_ordered_by_kode_barang(): void
+    {
+        $expectedCodes = Product::orderBy('kode_barang')->pluck('kode_barang')->all();
+
+        $stockOutCreate = $this->actingAs($this->staff)->get(route('stock-outs.create'));
+        $stockOutCreate->assertOk()
+            ->assertSee('Pilih alasan…')
+            ->assertSeeInOrder($expectedCodes)
+            ->assertSee("product.kode + ' — ' + product.nama + ' (stok ' + product.stok + ' ' + product.satuan + ')'", false);
+
+        $stockInCreate = $this->actingAs($this->staff)->get(route('stock-ins.create'));
+        $stockInCreate->assertOk()
+            ->assertSeeInOrder($expectedCodes)
+            ->assertSee("product.kode + ' — ' + product.nama + ' (stok ' + product.stok + ' ' + product.satuan + ')'", false);
     }
 
     public function test_tc10_daily_sequential_transaction_numbers_and_immutability(): void

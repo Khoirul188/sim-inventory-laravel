@@ -427,11 +427,11 @@ Aturan validasi memakai notasi Laravel dan harus diterapkan di `FormRequest`. Pe
 | Field | Wajib | Aturan |
 |---|:---:|---|
 | tanggal | Ya | `required\|date\|before_or_equal:today` |
-| alasan | Ya | `required\|in:pemakaian,penjualan,rusak,koreksi,lainnya` |
-| tujuan | Tidak | `nullable\|string\|max:150` |
+| alasan | Ya | `required\|in:pemakaian,penjualan,rusak,koreksi,lainnya` (tanpa default; mulai dari opsi kosong `Pilih alasan…`) |
+| tujuan | Bersyarat | `required_if:alasan,pemakaian,penjualan\|nullable\|string\|max:150` |
 | keterangan | Bersyarat | `required_if:alasan,koreksi,lainnya\|nullable\|string\|max:500` |
 | items | Ya | `required\|array\|min:1` |
-| items.*.product_id | Ya | `required\|exists:products,id\|distinct` |
+| items.*.product_id | Ya | `required\|exists:products,id\|distinct` (urut pilihan menurut `kode_barang` naik, format `BRG-0001 — Nama barang (stok N satuan)`) |
 | items.*.jumlah | Ya | `required\|integer\|min:1\|max:1000000` dan `jumlah <= stok` (dicek di form request **dan** ulang di `StockService` dengan kunci baris) |
 
 ### 7.8 Filter dan pengurutan daftar
@@ -1127,7 +1127,7 @@ Kueri ketiga dipakai pada pengujian (T1). Untuk tipe `adjust` (v1.1) rumusnya di
 | BR-11 | Tanggal transaksi tidak boleh lebih dari hari ini |
 | BR-12 | Pengguna nonaktif tidak dapat login. Pengguna tidak dapat menonaktifkan, menghapus, atau menurunkan peran dirinya sendiri; harus tersisa minimal satu admin aktif |
 | BR-13 | Stok awal barang baru selalu 0; stok awal dimasukkan lewat Barang Masuk |
-| BR-14 | Alasan *koreksi* dan *lainnya* pada barang keluar wajib disertai keterangan |
+| BR-14 | Pada barang keluar, alasan *pemakaian* dan *penjualan* wajib disertai tujuan/penerima; alasan *koreksi* dan *lainnya* wajib disertai keterangan |
 | BR-15 | Barang yang di-soft delete tidak muncul di pilihan form transaksi baru, tetapi tetap tampil pada riwayat dan laporan |
 
 ## 14. Rancangan UI/UX
@@ -1307,8 +1307,8 @@ Susunan, ukuran, dan perilaku tiap panel: `DESIGN.md` §6.
  Tambah Barang Keluar
  ┌─────────────────────────────────────────────────────────────┐
  │ No. Transaksi  BK-20261102-003 (otomatis)                   │
- │ Tanggal *      [ 02/11/2026 ]    Alasan * [ Pemakaian ▾ ]   │
- │ Tujuan         [ Bagian Keuangan                          ] │
+ │ Tanggal *      [ 02/11/2026 ]    Alasan * [ Pilih alasan… ▾]│
+ │ Tujuan         [ (wajib jika Pemakaian / Penjualan)       ] │
  │ Keterangan     [ (wajib jika alasan Koreksi / Lainnya)    ] │
  ├─────────────────────────────────────────────────────────────┤
  │ ┌──────────────────────┬──────────┬────────┬────┐           │
@@ -1512,7 +1512,7 @@ Aturan:
 | TC-06 | Barang dobel dalam satu transaksi | Ditolak |
 | TC-07 | Jumlah 0 atau negatif | Ditolak |
 | TC-08 | Tanggal masa depan | Ditolak |
-| TC-09 | Alasan *koreksi* tanpa keterangan | Ditolak |
+| TC-09 | Alasan kosong; alasan *pemakaian*/*penjualan* tanpa tujuan; alasan *koreksi*/*lainnya* tanpa keterangan | Ditolak sesuai aturan; alasan *rusak* tanpa tujuan diterima; urutan daftar pilih barang menurut `kode_barang` naik |
 | TC-10 | Dua transaksi pada hari yang sama | Nomor berurutan `...-001`, `...-002` |
 | TC-11 | Dua permintaan bersamaan mengeluarkan stok yang hanya cukup untuk satu | Satu berhasil, satu ditolak; stok tidak negatif |
 | TC-12 | Cek kartu stok setelah banyak transaksi | `stok_sebelum` baris berikutnya = `stok_sesudah` sebelumnya |
@@ -1877,6 +1877,8 @@ Semua pesan berbahasa Indonesia. Disimpan di `lang/id` atau `FormRequest::messag
 | Kode sudah dipakai | Kode barang sudah digunakan. |
 | Data dipakai | :jenis tidak dapat dihapus karena masih dipakai oleh :n barang. |
 | Barang dobel | Barang yang sama tidak boleh dimasukkan dua kali. Gabungkan jumlahnya. |
+| Alasan wajib | Alasan wajib dipilih. |
+| Tujuan wajib | Tujuan / penerima wajib diisi untuk alasan ini. |
 | Keterangan wajib | Keterangan wajib diisi untuk alasan ini. |
 | Tanggal masa depan | Tanggal tidak boleh melebihi hari ini. |
 | Jumlah tidak valid | Jumlah harus bilangan bulat lebih dari 0. |

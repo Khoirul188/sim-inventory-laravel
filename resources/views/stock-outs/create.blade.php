@@ -23,7 +23,7 @@
         action="{{ route('stock-outs.store') }}"
         x-data="{
             submitting: false,
-            alasan: @js(old('alasan', 'pemakaian')),
+            alasan: @js(old('alasan', '')),
             catalog: @js($productsCatalog),
             rows: @js(array_values($initialItems)),
             addRow() {
@@ -79,22 +79,31 @@
                         id="alasan"
                         name="alasan"
                         x-model="alasan"
-                        required
-                        class="h-10 w-full rounded-lg border border-line bg-white px-3.5 text-sm text-ink focus:border-primary-600 focus:ring-2 focus:ring-primary-600/20"
+                        class="h-10 w-full rounded-lg border {{ $errors->has('alasan') ? 'border-danger focus:border-danger focus:ring-danger/20' : 'border-line focus:border-primary-600 focus:ring-primary-600/20' }} bg-white px-3.5 text-sm text-ink focus:ring-2 transition-colors duration-150"
                     >
+                        <option value="">Pilih alasan…</option>
                         @foreach ($alasanOptions as $key => $label)
-                            <option value="{{ $key }}">{{ $label }}</option>
+                            <option value="{{ $key }}" @selected(old('alasan') === $key)>{{ $label }}</option>
                         @endforeach
                     </select>
                     <x-input-error :messages="$errors->get('alasan')" />
                 </div>
 
-                <x-input
-                    name="tujuan"
-                    label="Tujuan / Penerima"
-                    :value="old('tujuan')"
-                    placeholder="Contoh: Bagian Keuangan / Divisi IT"
-                />
+                <div>
+                    <label for="tujuan" class="block text-xs font-medium text-ink mb-1.5">
+                        Tujuan / Penerima
+                        <span x-show="alasan === 'pemakaian' || alasan === 'penjualan'" class="text-danger ml-0.5">*</span>
+                    </label>
+                    <input
+                        id="tujuan"
+                        name="tujuan"
+                        type="text"
+                        value="{{ old('tujuan') }}"
+                        placeholder="Contoh: Bagian Keuangan / Divisi IT"
+                        class="h-10 w-full rounded-lg border {{ $errors->has('tujuan') ? 'border-danger focus:border-danger focus:ring-danger/20' : 'border-line focus:border-primary-600 focus:ring-primary-600/20' }} bg-white px-3.5 text-sm text-ink placeholder:text-subtle focus:ring-2 transition-colors duration-150"
+                    />
+                    <x-input-error :messages="$errors->get('tujuan')" />
+                </div>
 
                 <div class="md:col-span-2">
                     <label for="keterangan" class="block text-xs font-medium text-ink mb-1.5">
@@ -105,7 +114,6 @@
                         id="keterangan"
                         name="keterangan"
                         rows="2"
-                        :required="alasan === 'koreksi' || alasan === 'lainnya'"
                         placeholder="Wajib diisi bila alasan Koreksi atau Lainnya (sebutkan nomor transaksi yang dikoreksi atau alasan rinci)…"
                         class="w-full rounded-lg border {{ $errors->has('keterangan') ? 'border-danger focus:border-danger focus:ring-danger/20' : 'border-line focus:border-primary-600 focus:ring-primary-600/20' }} bg-white p-3 text-sm text-ink placeholder:text-subtle focus:ring-2 transition-colors duration-150"
                     >{{ old('keterangan') }}</textarea>
@@ -161,7 +169,7 @@
                                                 :value="product.id"
                                                 :disabled="isProductTaken(product.id, index)"
                                                 x-show="!isProductTaken(product.id, index) || String(row.product_id) === String(product.id)"
-                                                x-text="product.kode + ' — ' + product.nama + ' (Tersedia: ' + product.stok + ' ' + product.satuan + ')'"
+                                                x-text="product.kode + ' — ' + product.nama + ' (stok ' + product.stok + ' ' + product.satuan + ')'"
                                             ></option>
                                         </template>
                                     </select>

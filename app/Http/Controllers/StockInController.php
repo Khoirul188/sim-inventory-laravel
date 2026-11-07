@@ -65,7 +65,7 @@ class StockInController extends Controller
     {
         $nextNo = $stockService->generateNumber('BM', now());
         $suppliers = Supplier::orderBy('nama')->get();
-        $products = Product::with('unit')->orderBy('nama')->get();
+        $products = Product::with('unit')->orderBy('kode_barang')->get();
 
         return view('stock-ins.create', compact('nextNo', 'suppliers', 'products'));
     }
@@ -91,4 +91,3 @@ class StockInController extends Controller
         return view('stock-ins.show', compact('stockIn'));
     }
 }
-

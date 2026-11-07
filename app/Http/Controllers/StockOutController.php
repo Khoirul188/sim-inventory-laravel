@@ -62,7 +62,7 @@ class StockOutController extends Controller
     public function create(StockService $stockService): View
     {
         $nextNo = $stockService->generateNumber('BK', now());
-        $products = Product::with('unit')->orderBy('nama')->get();
+        $products = Product::with('unit')->orderBy('kode_barang')->get();
         $alasanOptions = StockOut::alasanLabels();
 
         return view('stock-outs.create', compact('nextNo', 'products', 'alasanOptions'));
@@ -96,4 +96,3 @@ class StockOutController extends Controller
         return view('stock-outs.show', compact('stockOut'));
     }
 }
-
