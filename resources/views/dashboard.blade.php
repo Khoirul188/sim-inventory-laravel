@@ -1,5 +1,5 @@
 <x-app-layout title="Dashboard">
-    <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-5">
+    <div class="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_320px] gap-5">
         <!-- Kolom Utama -->
         <div class="space-y-5 min-w-0">
             <!-- Baris KPI -->

@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,18 +21,14 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Data Master & Transaksi yang hanya bisa dibuat/diubah oleh Admin & Staff (Fase 2 & 3)
+    // Data Master & Transaksi yang hanya bisa dibuat/diubah/dihapus oleh Admin & Staff
     Route::middleware('role:admin|staff')->group(function () {
-        Route::get('/products/create', fn () => view('placeholder', ['title' => 'Tambah Barang']))->name('products.create');
-        Route::post('/products', fn () => abort(404))->name('products.store');
-        Route::get('/products/{product}/edit', fn () => view('placeholder', ['title' => 'Ubah Barang']))->name('products.edit');
-        Route::put('/products/{product}', fn () => abort(404))->name('products.update');
-        Route::delete('/products/{product}', fn () => abort(404))->name('products.destroy');
+        Route::resource('products', ProductController::class)->except(['index', 'show']);
+        Route::resource('categories', CategoryController::class)->except(['show']);
+        Route::resource('units', UnitController::class)->except(['show']);
+        Route::resource('suppliers', SupplierController::class)->except(['show']);
 
-        Route::get('/categories', fn () => view('placeholder', ['title' => 'Kategori Barang']))->name('categories.index');
-        Route::get('/units', fn () => view('placeholder', ['title' => 'Satuan Barang']))->name('units.index');
-        Route::get('/suppliers', fn () => view('placeholder', ['title' => 'Data Supplier']))->name('suppliers.index');
-
+        // Stub Transaksi Tambah/Simpan (Fase 3)
         Route::get('/stock-ins/create', fn () => view('placeholder', ['title' => 'Tambah Barang Masuk']))->name('stock-ins.create');
         Route::post('/stock-ins', fn () => abort(404))->name('stock-ins.store');
 
@@ -36,11 +36,12 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/stock-outs', fn () => abort(404))->name('stock-outs.store');
     });
 
-    // Lihat Barang, Transaksi, dan Kartu Stok (Admin, Staff, Pimpinan — Fase 2 & 3)
+    // Lihat Barang, Daftar/Detail Transaksi, dan Kartu Stok (Admin, Staff, Pimpinan — PRD §5.2 & §16)
     Route::middleware('role:admin|staff|pimpinan')->group(function () {
-        Route::get('/products', fn () => view('placeholder', ['title' => 'Data Barang']))->name('products.index');
-        Route::get('/products/{product}', fn () => view('placeholder', ['title' => 'Detail Barang']))->name('products.show');
+        Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+        Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
+        // Stub Daftar & Detail Transaksi serta Kartu Stok (Fase 3)
         Route::get('/stock-ins', fn () => view('placeholder', ['title' => 'Barang Masuk']))->name('stock-ins.index');
         Route::get('/stock-ins/{stock_in}', fn () => view('placeholder', ['title' => 'Detail Barang Masuk']))->name('stock-ins.show');
 

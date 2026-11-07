@@ -7,9 +7,9 @@
     $user = auth()->user();
 @endphp
 
-<header class="h-20 px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4 bg-canvas" x-data="{ mobileSearchOpen: false }">
+<header class="h-20 px-4 md:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 bg-canvas" x-data="{ mobileSearchOpen: false }">
     <!-- Kiri: Tombol Menu Mobile + Judul Halaman -->
-    <div class="flex items-center gap-3 min-w-0">
+    <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 md:flex-initial">
         <button
             type="button"
             @click="sidebarOpen = true"
@@ -18,11 +18,11 @@
         >
             <x-icon name="bars-3" class="w-5 h-5" />
         </button>
-        <h1 class="text-xl md:text-2xl font-semibold text-ink truncate">{{ $title }}</h1>
+        <h1 class="text-xl sm:text-2xl font-semibold text-ink truncate">{{ $title }}</h1>
     </div>
 
     <!-- Kanan: Pencarian + Lonceng + Profil -->
-    <div class="flex items-center gap-3 md:gap-4 flex-1 justify-end">
+    <div class="flex items-center gap-1.5 sm:gap-3 md:gap-4 md:flex-1 justify-end shrink-0">
         <!-- Pencarian Global (Desktop/Tablet) -->
         <form action="{{ route('products.index') }}" method="GET" class="hidden md:block w-full max-w-md relative">
             <label for="global-search" class="sr-only">Cari kode atau nama barang</label>
@@ -37,25 +37,25 @@
             />
         </form>
 
-        <!-- Tombol Pencarian Mobile -->
+        <!-- Tombol Pencarian Mobile (40 px di < sm) -->
         <button
             type="button"
             @click="mobileSearchOpen = !mobileSearchOpen"
             aria-label="Cari barang"
-            class="md:hidden h-12 w-12 rounded-xl bg-white border border-line grid place-items-center text-ink hover:bg-slate-50 shrink-0"
+            class="md:hidden h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-white border border-line grid place-items-center text-ink hover:bg-slate-50 shrink-0"
         >
             <x-icon name="magnifying-glass" class="w-5 h-5" />
         </button>
 
-        <!-- Lonceng Peringatan Stok Menipis -->
+        <!-- Lonceng Peringatan Stok Menipis (40 px di < sm, 48 px di >= sm) -->
         <a
             href="{{ route('products.index', ['status' => 'menipis']) }}"
             aria-label="Ada {{ $lowStockCount }} barang stok menipis"
-            class="relative h-12 w-12 rounded-xl bg-white border border-line grid place-items-center text-ink hover:bg-slate-50 transition-colors duration-150 shrink-0"
+            class="relative h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-white border border-line grid place-items-center text-ink hover:bg-slate-50 transition-colors duration-150 shrink-0"
         >
             <x-icon name="bell" class="w-5 h-5" />
             @if ($lowStockCount > 0)
-                <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-danger ring-2 ring-white"></span>
+                <span class="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 w-2.5 h-2.5 rounded-full bg-danger ring-2 ring-white"></span>
             @endif
         </a>
 
@@ -66,7 +66,7 @@
                 @click="dropdownOpen = !dropdownOpen"
                 @keydown.escape.window="dropdownOpen = false"
                 aria-label="Menu profil pengguna"
-                class="flex items-center gap-3 rounded-xl p-1.5 hover:bg-white/80 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/40"
+                class="flex items-center gap-2.5 sm:gap-3 rounded-xl p-0 sm:p-1.5 hover:bg-white/80 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/40"
             >
                 <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-800 font-semibold text-sm grid place-items-center shrink-0">
                     {{ $user?->initials }}
@@ -131,4 +131,3 @@
         </form>
     </div>
 </header>
-

@@ -31,9 +31,9 @@
     </div>
 
     <!-- Daftar Menu -->
-    <nav class="flex-1 overflow-y-auto space-y-0.5 mt-2">
+    <nav class="flex-1 overflow-y-auto space-y-0.5">
         <!-- Grup MENU -->
-        <p class="px-3 mt-4 mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">MENU</p>
+        <p class="px-3 mt-6 mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">MENU</p>
         <a
             href="{{ route('dashboard') }}"
             class="flex items-center gap-3 rounded-xl px-3 h-11 text-sm transition-colors duration-150 {{ request()->routeIs('dashboard') ? 'bg-white/10 text-white font-medium' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
@@ -83,25 +83,23 @@
             </a>
         @endif
 
-        <!-- Grup TRANSAKSI -->
+        <!-- Grup TRANSAKSI (semua peran dapat melihat daftar & detail; pimpinan hanya baca) -->
         <p class="px-3 mt-6 mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">TRANSAKSI</p>
-        @if ($isAdmin || $isStaff)
-            <a
-                href="{{ route('stock-ins.index') }}"
-                class="flex items-center gap-3 rounded-xl px-3 h-11 text-sm transition-colors duration-150 {{ request()->routeIs('stock-ins.*') ? 'bg-white/10 text-white font-medium' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
-            >
-                <x-icon name="arrow-down-tray" class="w-5 h-5" />
-                <span>Barang Masuk</span>
-            </a>
+        <a
+            href="{{ route('stock-ins.index') }}"
+            class="flex items-center gap-3 rounded-xl px-3 h-11 text-sm transition-colors duration-150 {{ request()->routeIs('stock-ins.*') ? 'bg-white/10 text-white font-medium' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
+        >
+            <x-icon name="arrow-down-tray" class="w-5 h-5" />
+            <span>Barang Masuk</span>
+        </a>
 
-            <a
-                href="{{ route('stock-outs.index') }}"
-                class="flex items-center gap-3 rounded-xl px-3 h-11 text-sm transition-colors duration-150 {{ request()->routeIs('stock-outs.*') ? 'bg-white/10 text-white font-medium' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
-            >
-                <x-icon name="arrow-up-tray" class="w-5 h-5" />
-                <span>Barang Keluar</span>
-            </a>
-        @endif
+        <a
+            href="{{ route('stock-outs.index') }}"
+            class="flex items-center gap-3 rounded-xl px-3 h-11 text-sm transition-colors duration-150 {{ request()->routeIs('stock-outs.*') ? 'bg-white/10 text-white font-medium' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
+        >
+            <x-icon name="arrow-up-tray" class="w-5 h-5" />
+            <span>Barang Keluar</span>
+        </a>
 
         <a
             href="{{ route('stock-movements.index') }}"
@@ -158,4 +156,3 @@
         </form>
     </div>
 </aside>
-
