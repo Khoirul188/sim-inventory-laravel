@@ -104,7 +104,7 @@ class ProductController extends Controller
         $product->load(['category', 'unit']);
 
         $movementsQuery = $product->stockMovements()
-            ->with('user')
+            ->with(['user', 'stockIn', 'stockOut'])
             ->orderByDesc('created_at')
             ->orderByDesc('id');
 

@@ -4,6 +4,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StockInController;
+use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\StockOutController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
@@ -16,10 +19,9 @@ Route::get('/', function () {
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Profil Pengguna (semua peran)
+    // Profil Pengguna (semua peran — tanpa hapus akun sendiri sesuai BR-12 & PRD §5.3)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Data Master & Transaksi yang hanya bisa dibuat/diubah/dihapus oleh Admin & Staff
     Route::middleware('role:admin|staff')->group(function () {
@@ -28,12 +30,12 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::resource('units', UnitController::class)->except(['show']);
         Route::resource('suppliers', SupplierController::class)->except(['show']);
 
-        // Stub Transaksi Tambah/Simpan (Fase 3)
-        Route::get('/stock-ins/create', fn () => view('placeholder', ['title' => 'Tambah Barang Masuk']))->name('stock-ins.create');
-        Route::post('/stock-ins', fn () => abort(404))->name('stock-ins.store');
+        // Transaksi Tambah/Simpan (Admin & Staff — tanpa edit/update/destroy sesuai BR-06)
+        Route::get('/stock-ins/create', [StockInController::class, 'create'])->name('stock-ins.create');
+        Route::post('/stock-ins', [StockInController::class, 'store'])->name('stock-ins.store');
 
-        Route::get('/stock-outs/create', fn () => view('placeholder', ['title' => 'Tambah Barang Keluar']))->name('stock-outs.create');
-        Route::post('/stock-outs', fn () => abort(404))->name('stock-outs.store');
+        Route::get('/stock-outs/create', [StockOutController::class, 'create'])->name('stock-outs.create');
+        Route::post('/stock-outs', [StockOutController::class, 'store'])->name('stock-outs.store');
     });
 
     // Lihat Barang, Daftar/Detail Transaksi, dan Kartu Stok (Admin, Staff, Pimpinan — PRD §5.2 & §16)
@@ -41,14 +43,13 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
         Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
-        // Stub Daftar & Detail Transaksi serta Kartu Stok (Fase 3)
-        Route::get('/stock-ins', fn () => view('placeholder', ['title' => 'Barang Masuk']))->name('stock-ins.index');
-        Route::get('/stock-ins/{stock_in}', fn () => view('placeholder', ['title' => 'Detail Barang Masuk']))->name('stock-ins.show');
+        Route::get('/stock-ins', [StockInController::class, 'index'])->name('stock-ins.index');
+        Route::get('/stock-ins/{stock_in}', [StockInController::class, 'show'])->name('stock-ins.show');
 
-        Route::get('/stock-outs', fn () => view('placeholder', ['title' => 'Barang Keluar']))->name('stock-outs.index');
-        Route::get('/stock-outs/{stock_out}', fn () => view('placeholder', ['title' => 'Detail Barang Keluar']))->name('stock-outs.show');
+        Route::get('/stock-outs', [StockOutController::class, 'index'])->name('stock-outs.index');
+        Route::get('/stock-outs/{stock_out}', [StockOutController::class, 'show'])->name('stock-outs.show');
 
-        Route::get('/stock-movements', fn () => view('placeholder', ['title' => 'Kartu Stok']))->name('stock-movements.index');
+        Route::get('/stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
     });
 
     // Laporan (Admin & Pimpinan — Fase 5)

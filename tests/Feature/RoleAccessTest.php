@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\EnsureUserIsActive;
 use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
@@ -105,5 +106,96 @@ class RoleAccessTest extends TestCase
 
         // Admin bisa membuka /users -> 200
         $this->actingAs($admin)->get('/users')->assertOk();
+    }
+
+    public function test_admin_cannot_delete_deactivate_or_demote_self_and_must_keep_at_least_one_active_admin(): void
+    {
+        $admin = User::where('email', 'admin@inventory.test')->firstOrFail();
+
+        // Buat admin aktif kedua agar pengujian menolak aksi pada diri sendiri murni karena aturan self-protection
+        $secondAdmin = User::factory()->create([
+            'name' => 'Admin Kedua',
+            'email' => 'admin2@inventory.test',
+            'is_active' => true,
+        ]);
+        $secondAdmin->assignRole('admin');
+
+        // 1a. Admin mencoba menghapus akunnya sendiri lewat request langsung ke server -> ditolak
+        $this->actingAs($admin)
+            ->from(route('users.index'))
+            ->delete(route('users.destroy', $admin))
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('error', 'Anda tidak dapat menonaktifkan atau menghapus akun Anda sendiri.');
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id, 'is_active' => true]);
+
+        // 1b. Admin mencoba menonaktifkan akunnya sendiri -> ditolak
+        $this->actingAs($admin)
+            ->from(route('users.edit', $admin))
+            ->put(route('users.update', $admin), [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'role' => 'admin',
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('users.edit', $admin))
+            ->assertSessionHas('error', 'Anda tidak dapat menonaktifkan atau menghapus akun Anda sendiri.');
+
+        $this->assertTrue($admin->fresh()->is_active);
+
+        // 1c. Admin mencoba menurunkan perannya sendiri menjadi staff -> ditolak
+        $this->actingAs($admin)
+            ->from(route('users.edit', $admin))
+            ->put(route('users.update', $admin), [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'role' => 'staff',
+                'is_active' => '1',
+            ])
+            ->assertRedirect(route('users.edit', $admin))
+            ->assertSessionHas('error', 'Anda tidak dapat menonaktifkan atau menghapus akun Anda sendiri.');
+
+        $this->assertTrue($admin->fresh()->hasRole('admin'));
+
+        // 2. Uji proteksi server "minimal satu admin aktif" pada UserController:
+        // Misalkan secondAdmin berstatus nonaktif di DB, lalu mencoba menonaktifkan/menurunkan/menghapus satu-satunya admin aktif ($admin)
+        $secondAdmin->update(['is_active' => false]);
+
+        $this->withoutMiddleware(EnsureUserIsActive::class)
+            ->actingAs($secondAdmin)
+            ->from(route('users.edit', $admin))
+            ->put(route('users.update', $admin), [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'role' => 'admin',
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('users.edit', $admin))
+            ->assertSessionHas('error', 'Sistem harus memiliki minimal satu admin aktif.');
+
+        $this->assertTrue($admin->fresh()->is_active);
+
+        $this->withoutMiddleware(EnsureUserIsActive::class)
+            ->actingAs($secondAdmin)
+            ->from(route('users.edit', $admin))
+            ->put(route('users.update', $admin), [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'role' => 'staff',
+                'is_active' => '1',
+            ])
+            ->assertRedirect(route('users.edit', $admin))
+            ->assertSessionHas('error', 'Sistem harus memiliki minimal satu admin aktif.');
+
+        $this->assertTrue($admin->fresh()->hasRole('admin'));
+
+        $this->withoutMiddleware(EnsureUserIsActive::class)
+            ->actingAs($secondAdmin)
+            ->from(route('users.index'))
+            ->delete(route('users.destroy', $admin))
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('error', 'Sistem harus memiliki minimal satu admin aktif.');
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id, 'is_active' => true]);
     }
 }

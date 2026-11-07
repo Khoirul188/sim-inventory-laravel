@@ -142,11 +142,17 @@
 
                     @foreach ($movements as $movement)
                         <tr class="hover:bg-slate-50/70">
-                            <td class="px-5 py-3.5 text-sm text-muted tabular-nums">
+                            <td class="px-5 py-3.5 text-sm text-muted tabular-nums whitespace-nowrap">
                                 {{ $movement->created_at?->translatedFormat('d M Y H:i') }}
                             </td>
-                            <td class="px-5 py-3.5 text-sm font-medium text-ink tabular-nums">
-                                {{ strtoupper($movement->referensi_tipe) }} #{{ $movement->referensi_id }}
+                            <td class="px-5 py-3.5 text-sm font-medium text-ink tabular-nums whitespace-nowrap">
+                                @if ($movement->url_referensi)
+                                    <a href="{{ $movement->url_referensi }}" class="text-primary-600 hover:text-primary-700 hover:underline">
+                                        {{ $movement->nomor_referensi }}
+                                    </a>
+                                @else
+                                    {{ $movement->nomor_referensi }}
+                                @endif
                             </td>
                             <td class="px-5 py-3.5 text-sm">
                                 @if ($movement->tipe === 'in')

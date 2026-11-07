@@ -36,4 +36,23 @@ class StockOut extends Model
     {
         return $this->hasMany(StockOutItem::class);
     }
+
+    /**
+     * Label bahasa Indonesia untuk alasan barang keluar.
+     */
+    public static function alasanLabels(): array
+    {
+        return [
+            'pemakaian' => 'Pemakaian',
+            'penjualan' => 'Penjualan',
+            'rusak' => 'Rusak',
+            'koreksi' => 'Koreksi',
+            'lainnya' => 'Lainnya',
+        ];
+    }
+
+    public function getAlasanLabelAttribute(): string
+    {
+        return self::alasanLabels()[$this->alasan] ?? ucfirst((string) $this->alasan);
+    }
 }

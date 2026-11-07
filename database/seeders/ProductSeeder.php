@@ -72,7 +72,7 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($items as $item) {
-            Product::withTrashed()->updateOrCreate(
+            Product::withTrashed()->firstOrCreate(
                 ['kode_barang' => $item['kode']],
                 [
                     'nama' => $item['nama'],
