@@ -2,33 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Models\StockMovement;
+use App\Services\DashboardService;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     /**
-     * Tampilkan halaman dashboard (kerangka sementara Fase 1 dengan angka dari database).
+     * Tampilkan halaman dashboard lengkap dengan seluruh metrik, grafik, dan panel (PRD §11.4 & DESIGN §6).
      */
-    public function index(): View
+    public function index(Request $request, DashboardService $dashboardService): View
     {
-        $totalProducts = Product::count();
-        $totalStock = (int) Product::sum('stok');
-        $monthlyIn = (int) StockMovement::where('tipe', 'in')
-            ->whereBetween('created_at', [now()->startOfMonth(), now()])
-            ->sum('jumlah');
-        $monthlyOut = (int) StockMovement::where('tipe', 'out')
-            ->whereBetween('created_at', [now()->startOfMonth(), now()])
-            ->sum('jumlah');
-        $lowStockCount = Product::lowStock()->count();
+        $range = $request->string('range', '12m')->toString();
+        $search = $request->input('search');
 
-        return view('dashboard', compact(
-            'totalProducts',
-            'totalStock',
-            'monthlyIn',
-            'monthlyOut',
-            'lowStockCount'
-        ));
+        return view('dashboard', $dashboardService->getDashboardData($range, $search));
     }
 }

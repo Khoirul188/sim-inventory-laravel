@@ -2,8 +2,7 @@
 
 namespace App\View\Components;
 
-use App\Models\Product;
-use Illuminate\Support\Facades\Schema;
+use App\Services\DashboardService;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -12,11 +11,10 @@ class AppLayout extends Component
     public int $lowStockCount = 0;
 
     public function __construct(
-        public string $title = 'Dashboard'
+        public string $title = 'Dashboard',
+        ?int $lowStockCount = null,
     ) {
-        if (Schema::hasTable('products')) {
-            $this->lowStockCount = Product::lowStock()->count();
-        }
+        $this->lowStockCount = $lowStockCount ?? app(DashboardService::class)->getLowStockCount();
     }
 
     /**
