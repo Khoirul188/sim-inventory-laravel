@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockInController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\StockOutController;
@@ -54,9 +55,9 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // Laporan (Admin & Pimpinan — Fase 5)
     Route::middleware('role:admin|pimpinan')->group(function () {
-        Route::get('/reports/{jenis}', fn () => view('placeholder', ['title' => 'Laporan']))->name('reports.show');
-        Route::get('/reports/{jenis}/pdf', fn () => abort(404))->name('reports.pdf');
-        Route::get('/reports/{jenis}/excel', fn () => abort(404))->name('reports.excel');
+        Route::get('/reports/{jenis}', [ReportController::class, 'show'])->name('reports.show');
+        Route::get('/reports/{jenis}/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
+        Route::get('/reports/{jenis}/excel', [ReportController::class, 'excel'])->name('reports.excel');
     });
 
     // Kelola Pengguna (Khusus Admin — FR-03)

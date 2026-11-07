@@ -27,9 +27,10 @@
         @endif
     </div>
 
-    @if ($slot->isNotEmpty())
-        <div class="w-full sm:w-auto flex items-center gap-3">
+    @if ($slot->isNotEmpty() || isset($actions))
+        <div class="w-full sm:w-auto flex flex-wrap items-center gap-3">
             {{ $slot }}
+            {{ $actions ?? '' }}
         </div>
     @endif
 </div>

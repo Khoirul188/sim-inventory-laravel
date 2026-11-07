@@ -1,8 +1,30 @@
+@php
+    $canExport = auth()->user()?->hasAnyRole(['admin', 'pimpinan']);
+    $exportParams = array_filter([
+        'jenis' => 'kartu-stok',
+        'product_id' => request('product_id'),
+        'tipe' => request('tipe'),
+        'dari' => request('dari'),
+        'sampai' => request('sampai'),
+    ], fn ($v) => $v !== null && $v !== '');
+@endphp
+
 <x-app-layout title="Kartu Stok">
     <x-page-header
         title="Kartu Stok"
         :breadcrumbs="['Transaksi' => null, 'Kartu Stok' => route('stock-movements.index')]"
-    />
+    >
+        @if ($canExport)
+            <x-button :href="route('reports.pdf', $exportParams)" variant="secondary">
+                <x-icon name="arrow-down-tray" class="w-4 h-4" />
+                <span>Unduh PDF</span>
+            </x-button>
+            <x-button :href="route('reports.excel', $exportParams)" variant="primary">
+                <x-icon name="arrow-down-tray" class="w-4 h-4" />
+                <span>Unduh Excel</span>
+            </x-button>
+        @endif
+    </x-page-header>
 
     <!-- Bar Filter Barang & Rentang Tanggal (DESIGN §7 & PRD §7.8) -->
     <x-card class="mb-5 !p-4">

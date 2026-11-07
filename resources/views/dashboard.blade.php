@@ -249,12 +249,12 @@
                         <h2 class="text-lg font-semibold text-ink">Barang Masuk vs Keluar</h2>
                         <div class="mt-2 flex flex-wrap items-baseline gap-6">
                             <div>
-                                <span class="text-2xl font-bold text-ink tabular-nums">{{ format_angka($movementChart['totalOut']) }}</span>
-                                <span class="text-xs text-subtle ml-1">Total keluar</span>
+                                <span class="text-2xl font-bold text-ink tabular-nums">{{ format_angka($movementChart['totalIn']) }}</span>
+                                <span class="text-xs text-subtle ml-1">Total masuk</span>
                             </div>
                             <div>
-                                <span class="text-lg font-semibold text-success-ink tabular-nums">+{{ format_angka($movementChart['totalIn']) }}</span>
-                                <span class="text-xs text-subtle ml-1">Total masuk</span>
+                                <span class="text-2xl font-bold text-ink tabular-nums">{{ format_angka($movementChart['totalOut']) }}</span>
+                                <span class="text-xs text-subtle ml-1">Total keluar</span>
                             </div>
                         </div>
                     </div>
@@ -347,15 +347,17 @@
 
                             <div class="space-y-3">
                                 @foreach ($categoryStock['segments'] as $segment)
-                                    <div class="flex items-center justify-between gap-3 text-sm">
-                                        <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="flex items-start justify-between gap-3 text-sm">
+                                        <div class="flex items-start gap-2.5 min-w-0">
                                             <span
-                                                class="w-2.5 h-2.5 rounded-sm shrink-0"
+                                                class="w-2.5 h-2.5 rounded-sm shrink-0 mt-1.5"
                                                 style="background-color: {{ $segment['color'] }}"
                                             ></span>
-                                            <span class="text-ink font-medium truncate">{{ $segment['label'] }}</span>
-                                            <span class="text-xs text-subtle tabular-nums shrink-0">
-                                                ({{ number_format($segment['percent'], floor($segment['percent']) == $segment['percent'] ? 0 : 1, ',', '.') }}%)
+                                            <span class="text-ink font-medium leading-snug" title="{{ $segment['label'] }}">
+                                                {{ $segment['label'] }}
+                                                <span class="text-xs font-normal text-subtle tabular-nums ml-1">
+                                                    ({{ number_format($segment['percent'], floor($segment['percent']) == $segment['percent'] ? 0 : 1, ',', '.') }}%)
+                                                </span>
                                             </span>
                                         </div>
                                         <span class="font-semibold text-ink tabular-nums shrink-0">
@@ -463,8 +465,16 @@
                                     <p class="text-2xl font-bold text-ink tabular-nums mt-0.5">
                                         {{ $top['percent_formatted'] }}%
                                     </p>
+                                    @php
+                                        $prevWeekOut = (int) ($top['sparkline'][2] ?? 0);
+                                        $currWeekOut = (int) ($top['sparkline'][3] ?? 0);
+                                        $weeklyDiffPercent = $prevWeekOut > 0 ? round((($currWeekOut - $prevWeekOut) / $prevWeekOut) * 100, 1) : null;
+                                    @endphp
                                     <p class="text-xs text-subtle tabular-nums mt-0.5">
-                                        Minggu lalu: {{ $top['last_week_percent_formatted'] }}% · {{ format_angka($top['total_out']) }} {{ $top['product']?->unit?->singkatan }}
+                                        {{ format_angka($top['total_out']) }} {{ $top['product']?->unit?->singkatan }} / 30 hari
+                                        @if ($weeklyDiffPercent !== null)
+                                            · {{ $weeklyDiffPercent > 0 ? '+' : ($weeklyDiffPercent < 0 ? '−' : '') }}{{ number_format(abs($weeklyDiffPercent), floor(abs($weeklyDiffPercent)) == abs($weeklyDiffPercent) ? 0 : 1, ',', '.') }}% dari minggu lalu
+                                        @endif
                                     </p>
                                 </div>
 
