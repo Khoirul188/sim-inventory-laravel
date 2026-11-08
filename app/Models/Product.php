@@ -107,6 +107,7 @@ class Product extends Model
     /**
      * Satu-satunya sumber URL foto barang dari disk public.
      * Mengembalikan null bila kolom foto kosong atau file fisik tidak ditemukan di storage.
+     * Menggunakan asset() agar mengikuti host/base path dari request aktif (Apache maupun php artisan serve).
      */
     public function getFotoUrlAttribute(): ?string
     {
@@ -114,7 +115,7 @@ class Product extends Model
             return null;
         }
 
-        return Storage::disk('public')->url($this->foto);
+        return asset('storage/'.$this->foto);
     }
 
     /**

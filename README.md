@@ -203,10 +203,13 @@ pw_project/
 
 ## 9. Pemecahan Masalah Umum (Troubleshooting)
 
+Aplikasi ini dapat dibuka baik melalui **Apache XAMPP** (`http://localhost/pw_project/public`) maupun melalui server bawaan Laravel **`php artisan serve`** (`http://127.0.0.1:8000`). Nilai `APP_URL` di `.env` tidak memengaruhi tampilnya foto barang karena URL foto dibentuk mengikuti alamat request aktif (`asset('storage/...')`). Bila foto barang tidak muncul, pastikan symbolic link `public\storage` sudah terbentuk dengan menjalankan `php artisan storage:link` melalui **Command Prompt (Run as Administrator)** di Windows. Selain itu, pastikan berkas `public/hot` tidak tersisa dari sesi `npm run dev` sebelumnya (hapus `public/hot` dan gunakan `npm run build` agar halaman tidak mencari server Vite), serta selalu hentikan layanan **MySQL** melalui tombol **Stop** di XAMPP Control Panel sebelum mematikan atau menutup komputer agar tabel dan *redo log* InnoDB tidak mengalami *hang*/*corrupt* saat dinyalakan kembali.
+
 | Gejala | Penyebab | Solusi |
 |---|---|---|
 | **Foto barang tidak tampil (ikon gambar rusak / 404)** | Symbolic link `public\storage` belum dibuat atau gagal karena izin Windows | Buka **Command Prompt sebagai Administrator**, masuk ke `C:\xampp\htdocs\pw_project`, lalu jalankan `php artisan storage:link`. |
 | **Semua request menghasilkan 404 saat menjalankan `php artisan test`** | `APP_URL` di `.env` mengandung subfolder (`/pw_project/public`) dan tidak ditimpa saat tes | Pastikan di dalam `phpunit.xml` terdapat baris `<env name="APP_URL" value="http://localhost"/>`. |
 | **Tabel/data di database MySQL `inventory_stok` kosong setelah menjalankan `php artisan test`** | Pengaturan database tes di `phpunit.xml` masih dikomentari sehingga `RefreshDatabase` menghapus MySQL | Pastikan `<env name="DB_CONNECTION" value="sqlite"/>` dan `<env name="DB_DATABASE" value=":memory:"/>` aktif (tidak dikomentari) di `phpunit.xml`, lalu pulihkan data demo dengan `php artisan migrate:fresh --seed`. |
+| **Browser *loading* terus saat membuka aplikasi** | Berkas `public/hot` masih tersisa dari `npm run dev` atau layanan MySQL XAMPP mengalami *hang* akibat komputer dimatikan tanpa menekan tombol Stop | Hapus berkas `public/hot` bila ada, jalankan `npm run build`, serta hentikan lalu nyalakan ulang MySQL dari XAMPP Control Panel. |
 | **`npm` ditolak dengan pesan *running scripts is disabled*** | Terminal menggunakan PowerShell dengan kebijakan *Restricted* | Ganti profil terminal ke **Command Prompt (`cmd`)** sesuai panduan. |
 | **Tampilan halaman tidak bergaya / error *Vite manifest not found*** | Aset frontend belum di-build ke `public/build` | Jalankan `npm run build` di Command Prompt. |

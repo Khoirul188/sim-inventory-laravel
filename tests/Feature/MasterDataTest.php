@@ -195,6 +195,10 @@ class MasterDataTest extends TestCase
     public function test_product_photo_upload_replace_missing_file_fallback_and_force_delete(): void
     {
         Storage::fake('public');
+        config([
+            'app.url' => 'http://contoh.test',
+            'filesystems.disks.public.url' => 'http://contoh.test/storage',
+        ]);
 
         $category = Category::firstOrFail();
         $unit = Unit::firstOrFail();
@@ -220,7 +224,9 @@ class MasterDataTest extends TestCase
         $this->assertStringStartsWith('products/', $oldPhotoPath);
         $this->assertNotSame('products/monitor-lama.jpg', $oldPhotoPath);
         Storage::disk('public')->assertExists($oldPhotoPath);
-        $this->assertSame(Storage::disk('public')->url($oldPhotoPath), $product->foto_url);
+        $this->assertNotNull($product->foto_url);
+        $this->assertStringEndsWith('/storage/'.$oldPhotoPath, $product->foto_url);
+        $this->assertStringNotContainsString('contoh.test', $product->foto_url);
 
         // Pastikan URL foto tampil di halaman detail dan form ubah
         $this->actingAs($this->staff)
@@ -253,7 +259,9 @@ class MasterDataTest extends TestCase
         $this->assertNotSame($oldPhotoPath, $newPhotoPath);
         Storage::disk('public')->assertMissing($oldPhotoPath);
         Storage::disk('public')->assertExists($newPhotoPath);
-        $this->assertSame(Storage::disk('public')->url($newPhotoPath), $product->foto_url);
+        $this->assertNotNull($product->foto_url);
+        $this->assertStringEndsWith('/storage/'.$newPhotoPath, $product->foto_url);
+        $this->assertStringNotContainsString('contoh.test', $product->foto_url);
 
         // 3. Bila file fisik tidak ada di disk public, foto_url bernilai null & tampil ikon placeholder (bukan img rusak)
         Storage::disk('public')->delete($newPhotoPath);
